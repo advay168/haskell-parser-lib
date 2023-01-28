@@ -48,11 +48,18 @@ instance Alternative Parser where
 
 instance MonadPlus Parser
 
-parse :: Parser a -> String -> Maybe (a, String)
+--parse :: Parser a -> String -> Maybe (a, String)
 parse (Parser p) = p
 
 whitespace :: Parser ()
 whitespace = void $ many (char ' ')
+
+ws :: Parser a -> Parser a
+ws p = do
+  whitespace
+  x <- p
+  whitespace
+  return x
 
 char :: Char -> Parser Char
 char c = Parser func

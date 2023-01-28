@@ -13,7 +13,7 @@ expr =
     whitespace
     char '+'
     whitespace
-    y <- term
+    y <- expr
     return (x + y)
     <|> term
 
@@ -23,8 +23,8 @@ term =
     x <- power
     whitespace
     opr <- char '*' <|> char '/'
-    y <- power
     whitespace
+    y <- term
     return (if opr == '*' then x * y else x / y)
     <|> power
 
@@ -34,8 +34,8 @@ power =
     x <- factor
     whitespace
     char '^'
-    y <- factor
     whitespace
+    y <- power
     return (x ** y)
     <|> factor
 
