@@ -10,9 +10,7 @@ expr :: Parser Double
 expr =
   do
     x <- term
-    whitespace
-    char '+'
-    whitespace
+    ws $ char '+'
     y <- expr
     return (x + y)
     <|> term
@@ -21,9 +19,7 @@ term :: Parser Double
 term =
   do
     x <- power
-    whitespace
-    opr <- char '*' <|> char '/'
-    whitespace
+    opr <- ws $ char '*' <|> char '/'
     y <- term
     return (if opr == '*' then x * y else x / y)
     <|> power
@@ -32,9 +28,7 @@ power :: Parser Double
 power =
   do
     x <- factor
-    whitespace
-    char '^'
-    whitespace
+    ws $ char '^'
     y <- power
     return (x ** y)
     <|> factor
@@ -43,7 +37,6 @@ factor :: Parser Double
 factor =
   decimal <|> do
     char '('
-    whitespace
-    x <- expr
+    x <- ws expr
     char ')'
     return x

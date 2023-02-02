@@ -6,7 +6,10 @@ module Parser
     natural,
     integer,
     decimal,
+    word,
+    word',
     whitespace,
+    ws,
     (<|>),
     some,
     many,
@@ -61,17 +64,23 @@ ws p = do
   whitespace
   return x
 
-char :: Char -> Parser Char
-char c = Parser func
+item :: Parser Char
+item = Parser func
   where
     func [] = empty
-    func (cx : cs) = if cx == c then pure (cx, cs) else empty
+    func (cx : cs) = pure (cx, cs)
+
+char :: Char -> Parser Char
+char c = do
+  cx <- item
+  guard (cx == c)
+  return cx
 
 digit :: Parser Int
-digit = Parser func
-  where
-    func [] = empty
-    func (cx : cs) = if cx `elem` ['0' .. '9'] then pure (read [cx], cs) else empty
+digit = do
+  cx <- item
+  guard (cx `elem` ['0' .. '9'])
+  return (read [cx])
 
 natural :: Parser Int
 natural = foldl (\acc x -> acc * 10 + x) 0 <$> some digit
@@ -87,3 +96,9 @@ decimal =
     fracPart <- natural
     return (fromIntegral intPart + until (< 1) (/ 10) (fromIntegral fracPart))
     <|> (fromIntegral <$> integer)
+
+word :: Parser String
+word = many item
+
+word' :: Parser String
+word' = some item
